@@ -1,0 +1,16 @@
+:host {
+    display: flex;
+    justify-content: center;
+    margin: 10px 0px;
+
+  }
+  mat-card {
+    min-width: 700px;
+  }
+
+  .addr {
+    display: inline-flex;
+    align-self: center;
+    margin: 0px;
+    padding-left: 6px;
+  }

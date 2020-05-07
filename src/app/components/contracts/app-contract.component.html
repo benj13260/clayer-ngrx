@@ -1,0 +1,32 @@
+<mat-card>
+    <mat-card-header>
+        <mat-card-title>
+            {{ (title) }}
+        </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+
+        <mat-expansion-panel hideToggle="{{ (contract$ | async ) == null}}">
+            <mat-expansion-panel-header >
+                <mat-panel-title>
+
+                    <button mat-button (click)="createToken()">
+                        <span class="material-icons">
+                            autorenew
+                        </span>
+                    </button>
+                    <p id="addr" class="addr" >
+                        Address: {{ (contract$ | async )?.address  }}
+                    </p>
+
+                </mat-panel-title>
+            </mat-expansion-panel-header>
+            <p>  Transaction: {{ (contract$  | async )?.hash}}</p>
+            <p>  From: {{ (contract$  | async )?.from}}</p>
+            <!-- <p>  Gas usage: {{ (contract$  | async )?.gasPrice}}</p> -->
+            <p>  Gas gasLimit: {{ (contract$  | async )?.gasLimit}}</p>
+            <!-- <p>  Block Number:  {{ (contract$  | async )?.block}}</p> -->
+            <!-- <p>  Block Time:  {{ (contract$  | async )?.time}}</p>  -->
+        </mat-expansion-panel>
+    </mat-card-content>
+</mat-card>
