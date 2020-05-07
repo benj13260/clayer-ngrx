@@ -12,7 +12,19 @@ import { map, mergeMap, concatMap, switchMap } from 'rxjs/operators';
 @Component({
   selector: 'token-define',
   template: `
-  <input matInput placeholder="My token name" value="{{tokenName}}" (keyup)="onKey($event)">
+  <!--input matInput placeholder="My token name" value="{{tokenName}}" (keyup)="onKey($event)"-->
+
+  <form class="example-form">
+  <mat-form-field class="example-full-width">
+    <mat-label>Favorite food</mat-label>
+    <input matInput placeholder="Ex. Pizza" value="Sushi">
+  </mat-form-field>
+
+  <mat-form-field class="example-full-width">
+    <mat-label>Leave a comment</mat-label>
+    <textarea matInput placeholder="Ex. It makes me feel..."></textarea>
+  </mat-form-field>
+</form>
   `
   ,
   styles: [
