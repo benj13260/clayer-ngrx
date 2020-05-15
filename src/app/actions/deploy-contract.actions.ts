@@ -1,8 +1,8 @@
 import { createAction, props } from '@ngrx/store';
-import { ContractInfo } from '../model/clayer';
+import { ContractInfo, TokenDefinition } from '../model/clayer';
 
 
-
+// Delegate
 export const DeployTokenDelegate = createAction(
   '[CLayer] Create Token Delegate',
 );
@@ -12,6 +12,7 @@ export const TokenDelegateCreated = createAction(
   props<{ contract: ContractInfo }>()
 );
 
+// Core
 export const DeployTokenCore = createAction(
   '[CLayer] Deploy Token Core',
   props<{ name: string, addr : string }>()
@@ -22,7 +23,7 @@ export const TokenCoreCreated = createAction(
   props<{ contract: ContractInfo }>()
 );
 
-
+// Proxy
 export const DeployTokenProxy = createAction(
   '[CLayer] Deploy Token Proxy',
   props<{ addr : string }>()
@@ -31,4 +32,16 @@ export const DeployTokenProxy = createAction(
 export const TokenProxyCreated = createAction(
   '[CLayer] Token Proxy Created',
   props<{ contract: ContractInfo }>()
+);
+
+
+//update
+export const UpdateToken = createAction(
+  '[CLayer] Update Token',
+  props<{ payload: TokenDefinition}>()
+)
+
+export const TokenUpdated = createAction(
+  '[CLayer] Token Updated',
+  props<{ res: boolean }>()
 );

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Observable } from 'rxjs';
-import { DeployTokenCore, DeployTokenProxy } from '../../actions/deploy-contract.actions'
+import { DeployTokenProxy } from '../../actions/deploy-contract.actions'
 import { select, Store } from '@ngrx/store';
 import { TokenCreation, ContractInfo } from '../../model/clayer';
 import * as fromTokenCreationSelector from '../../selectors/token-create.selectors';

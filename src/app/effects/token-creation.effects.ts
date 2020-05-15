@@ -7,6 +7,7 @@ import {
   DeployTokenDelegate, TokenDelegateCreated, 
   DeployTokenCore, TokenCoreCreated,
   DeployTokenProxy, TokenProxyCreated, 
+  UpdateToken, TokenUpdated
 } from '../actions/deploy-contract.actions';
 import { AccountsService } from '../services/accounts.service';
 import TokenDelegateJSON from '../../assets/contracts/TokenDelegate.json'
@@ -69,6 +70,34 @@ export class TokenCreationEffects {
     ),
   ));
 
+
+
+  /**
+   *   Define a token
+   *   Return boolean
+   */
+  updateTokenCore$ = createEffect(() => 
+  this.actions$.pipe(
+    ofType(UpdateToken),
+    switchMap( _payload => 
+      from(this.srv.updateTokenCore(_payload.payload, TokenCoreJSON))
+      .pipe(
+        //map(x => this.srv.getContractInfo(x)),
+        map(x => TokenUpdated({res : true}) )
+      ) 
+    ),
+  ));
+
+  TokenUpdated$ = createEffect(() =>
+  this.actions$.pipe(
+    ofType(TokenUpdated),
+    switchMap( () =>
+     from(this.srv.getName('a')).pipe( map ( x =>  console.log('hello '+ x)))
+    )
+  ),
+  { dispatch: false }
+  );
+  
 
  constructor(private actions$: Actions, private srv: AccountsService, private store: Store) { }
 

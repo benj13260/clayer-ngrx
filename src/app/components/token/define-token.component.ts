@@ -1,49 +1,86 @@
-import { Component, OnInit } from '@angular/core';
-import { Observable, from } from 'rxjs';
+import { Component, Input, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Observable } from 'rxjs';
 import { select, Store } from '@ngrx/store';
-import { DeployTokenDelegate } from '../../actions/deploy-contract.actions';
 
-import { ContractInfo } from '../../model/clayer';
+import { TokenDefinition, ContractInfo, TokenCreation } from '../../model/clayer';
 import * as selector from '../../selectors/token-create.selectors';
-
-import { map, mergeMap, concatMap, switchMap } from 'rxjs/operators';
+import * as fromTokenCreationSelector from '../../selectors/token-create.selectors';
+import { UpdateToken } from '../../actions/deploy-contract.actions'
 
 
 @Component({
   selector: 'token-define',
   template: `
-  <!--input matInput placeholder="My token name" value="{{tokenName}}" (keyup)="onKey($event)"-->
+  <mat-card>
+    <mat-card-header>
+        <mat-card-title>
+            {{ (title) }}
+        </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+        <form class="token-form" >
+        <mat-form-field class="token-full-width">
+          <mat-label>Token name</mat-label>
+          <input id="name" matInput placeholder="" value="{{tokenName}}" [(ngModel)]="tokenName" name="tokenName">
+        </mat-form-field>
 
-  <form class="example-form">
-  <mat-form-field class="example-full-width">
-    <mat-label>Favorite food</mat-label>
-    <input matInput placeholder="Ex. Pizza" value="Sushi">
-  </mat-form-field>
-
-  <mat-form-field class="example-full-width">
-    <mat-label>Leave a comment</mat-label>
-    <textarea matInput placeholder="Ex. It makes me feel..."></textarea>
-  </mat-form-field>
-</form>
+        <mat-form-field class="token-full-width">
+        <mat-label>Token Symbol</mat-label>
+        <input id="sym" matInput placeholder="" value="{{tokenSym}}"  [(ngModel)]="tokenSym" name="tokenSym">
+        </mat-form-field>
+      </form>
+      <button mat-button (click)="updateToken()">
+        <span class="material-icons">
+            autorenew
+        </span>
+      </button>
+    </mat-card-content>
+  </mat-card>
   `
   ,
   styles: [
     ` 
+    .token-form {
+      /*min-width: 150px;
+      max-width: 500px;*/
+      width: 100%;
+    }
+    
+    .token-full-width {
+      width: 100%;
+    }
     `
   ]
 })
 export class DefineTokenComponent {
 
+  
   tokenName = "";
-  title = "Token Delegate";
-  contract$:  Observable<ContractInfo>;
+  tokenSym = "";
 
-  constructor(private store: Store <ContractInfo>){
-    this.contract$ = store.pipe(select(selector.selectTokenDelegate));
+  title = "Define Token";
+
+   // Core token address used for deployment
+   coreContract$: Observable<ContractInfo>;
+   proxyContract$: Observable<ContractInfo>;
+
+  constructor(private store: Store <TokenCreation>) {     
+    this.coreContract$ = store.pipe(select(fromTokenCreationSelector.selectTokenCore));
+    this.proxyContract$ = store.pipe(select(fromTokenCreationSelector.selectTokenCore));
   }
 
-  onKey(event: any) { 
-    this.tokenName = event.target.value ;
+  updateToken(){
+    let coreAddr, proxyAddr: string;
+    this.coreContract$.forEach(x => coreAddr = x.address);
+    this.proxyContract$.forEach(x => proxyAddr = x.address);
+    let def : TokenDefinition = new TokenDefinition();
+    def.coreAddr = coreAddr;
+    def.proxyAddr = proxyAddr;
+    def.id = 0;
+    def.name = this.tokenName;
+    def.sym = this.tokenSym;
+    def.dec = 18;
+    this.store.dispatch(UpdateToken({payload: def}));
   }
 
 }

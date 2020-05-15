@@ -1,8 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { ethers, Wallet, ContractFactory, Contract, utils } from 'ethers';
+import { ethers, Wallet, ContractFactory, Contract, utils} from 'ethers';
 import { JsonRpcProvider } from 'ethers/providers';
-import { ContractInfo, TokenFactory } from '../model/clayer';
+import { ContractInfo, TokenFactory, TokenDefinition } from '../model/clayer';
+
+import TokenDelegateJSON from '../../assets/contracts/TokenDelegate.json'
+import TokenCoreJSON from '../../assets/contracts/TokenCore.json'
+import TokenProxyJSON from '../../assets/contracts/TokenProxy.json'
 
 
 @Injectable({
@@ -23,6 +27,9 @@ export class AccountsService {
   
   wallet: Wallet;
 
+  cmap = new Map<string, any>(); 
+
+
   constructor(httpClient: HttpClient) {
     this.httpClient = httpClient;
     this.ethersProvider = new ethers.providers.JsonRpcProvider(this.chainURL);
@@ -35,6 +42,13 @@ export class AccountsService {
     this.prv.push('0x3011c3dfa7f8cc967ed53d37e8dc9f5ad8e1caa3ecb4a5bc03aab25524658ac8');
 
     this.wallet = new ethers.Wallet(this.prv[0], this.ethersProvider);
+
+    
+    this.cmap.set('TokenDelegate',TokenDelegateJSON);
+    this.cmap.set('TokenCore',TokenCoreJSON);
+    this.cmap.set('TokenProxy',TokenProxyJSON);
+
+
   }
 
   getAccounts(): string[] {
@@ -135,5 +149,40 @@ export class AccountsService {
       return null;
     }
   }
+z
+  /**
+   * Update token 
+   * @param payload 
+   */
+  async updateTokenCore(payload: TokenDefinition, c: any): Promise<Boolean> {
+    try {
+      console.log("payload.coreAddr: "+payload.coreAddr+",  c.abi"+c.abi);
+      let coreContract = new ethers.Contract(payload.coreAddr, c.abi, this.ethersProvider);
+      let contractWithSigner = coreContract.connect(this.wallet);
+      
+      let tx = await contractWithSigner.defineToken(payload.proxyAddr, 0, payload.name, payload.sym, payload.dec);
+      console.log("tx: "+JSON.stringify(tx))
+      return true;
+    }
+    catch (err) {
+      console.log(err);
+      return false;
+    }
+  }
+
+
+  async getName(addr: string): Promise<string>{
+    let a ='0xbED67Ea4C500E2bEA4b8AEC7B57E17664222340A';
+    let proxyContract = new ethers.Contract(a, TokenProxyJSON.abi, this.ethersProvider);
+    let contractWithSigner = proxyContract.connect(this.wallet);
+    let n =  await contractWithSigner.name();
+    console.log("n: "+n);
+    let b =  await contractWithSigner.balanceOf(this.acc);
+    
+    console.log("b: "+b);
+    return n;
+
+  }
+
 
 }

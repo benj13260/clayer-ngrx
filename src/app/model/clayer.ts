@@ -1,10 +1,14 @@
 import { ContractFactory } from 'ethers';
+import { BigNumber } from 'ethers/utils';
 
 export interface TokenCreation {
     delegate?: ContractInfo,
     core?: ContractInfo,
     proxy?: ContractInfo,
-    status?: string
+    status?: string,
+    name?: string,
+    sym?: string
+    balance?: BigNumber
 }
 
 
@@ -21,4 +25,20 @@ export interface ContractInfo{
 export interface TokenFactory{
     contractFactory : ContractFactory,
     payload :  any
+}
+
+export class TokenInfo{
+    name: string;
+    sym: string;
+    dec: number;
+    supply?: string;
+}
+
+export class TokenDefinition{
+    coreAddr : string; 
+    proxyAddr : string; 
+    id: number; 
+    name : string; 
+    sym: string; 
+    dec: number; 
 }

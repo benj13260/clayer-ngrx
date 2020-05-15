@@ -1,5 +1,5 @@
 import { Action, createReducer, on } from '@ngrx/store';
-import { TokenDelegateCreated, TokenCoreCreated, TokenProxyCreated } from '../actions/deploy-contract.actions';
+import { TokenDelegateCreated, TokenCoreCreated, TokenProxyCreated, TokenUpdated } from '../actions/deploy-contract.actions';
 import {TokenCreation} from '../model/clayer';
 
 export const FeatureKey = 'token-creation';
@@ -17,6 +17,8 @@ const tokenCreationReducer = createReducer(
     //State:
     on(TokenCoreCreated, (state) => ({ ...state, status : "2" })),
     on(TokenProxyCreated, (state) => ({ ...state, status : "3" })),
+
+    //on(TokenUpdated, (state) => ({ ...state, name :  state. })),
 
 
 );
