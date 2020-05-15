@@ -92,7 +92,7 @@ export class TokenCreationEffects {
   this.actions$.pipe(
     ofType(TokenUpdated),
     switchMap( () =>
-     from(this.srv.getName('a')).pipe( map ( x =>  console.log('hello '+ x)))
+     from(this.srv.getName('a')).pipe( map ( x =>  console.log('TokenUpdated '+ x)))
     )
   ),
   { dispatch: false }

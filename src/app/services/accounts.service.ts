@@ -176,10 +176,9 @@ z
     let proxyContract = new ethers.Contract(a, TokenProxyJSON.abi, this.ethersProvider);
     let contractWithSigner = proxyContract.connect(this.wallet);
     let n =  await contractWithSigner.name();
-    console.log("n: "+n);
+    console.log("Name: "+n);
     let b =  await contractWithSigner.balanceOf(this.acc);
-    
-    console.log("b: "+b);
+    console.log("Balance: "+b);
     return n;
 
   }

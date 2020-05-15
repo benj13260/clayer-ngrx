@@ -76,6 +76,8 @@ describe('AccountsService', () => {
     console.log('Token proxy : '+JSON.stringify(proxyI));
 
 
+    
+
     expect(proxyI.address).toContain('0x')
   });
 
