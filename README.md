@@ -3,8 +3,11 @@
 The goal of this application is for a user to create [C-Layer](https://github.com/c-layer) token (ERC20 compatible).
 
 The front end is developped with [Angular](https://github.com/angular). 
+
 Leveraging [NgRx](https://github.com/ngrx) library to enable reactive programming, i.e. a development model structured around asynchronous data streams. 
+
 The user interface is built upon [Material design](https://material.io/) components.
+
 The integration with Ethereum blockchain is based on [Ethers.js] (https://docs.ethers.io/ethers.js/html/index.html) library.
 
 ## Development
