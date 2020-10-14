@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { ethers, Wallet, ContractFactory, Contract, utils} from 'ethers';
+import { ethers, Wallet, ContractFactory, Contract, utils } from 'ethers';
 import { JsonRpcProvider } from 'ethers/providers';
-import { ContractInfo, TokenFactory, TokenDefinition } from '../model/clayer';
+import { ContractInfo, TokenFactory, TokenDefinition, ContractType } from '../model/clayer';
 
 import TokenDelegateJSON from '../../assets/contracts/TokenDelegate.json'
 import TokenCoreJSON from '../../assets/contracts/TokenCore.json'
 import TokenProxyJSON from '../../assets/contracts/TokenProxy.json'
+import { BigNumber } from 'ethers/utils';
 
 
 @Injectable({
@@ -24,11 +25,14 @@ export class AccountsService {
 
   chainURL = "http://localhost:7545"; // Ganache UI 
   //chainURL = "http://localhost:8545"; // Bash
-  
+
   wallet: Wallet;
 
-  cmap = new Map<string, any>(); 
+  cmap = new Map<string, any>();
 
+  delegateToken : Contract;
+  coreToken : Contract;
+  proxyToken : Contract;
 
   constructor(httpClient: HttpClient) {
     this.httpClient = httpClient;
@@ -43,10 +47,10 @@ export class AccountsService {
 
     this.wallet = new ethers.Wallet(this.prv[0], this.ethersProvider);
 
-    
-    this.cmap.set('TokenDelegate',TokenDelegateJSON);
-    this.cmap.set('TokenCore',TokenCoreJSON);
-    this.cmap.set('TokenProxy',TokenProxyJSON);
+
+    this.cmap.set('TokenDelegate', TokenDelegateJSON);
+    this.cmap.set('TokenCore', TokenCoreJSON);
+    this.cmap.set('TokenProxy', TokenProxyJSON);
 
 
   }
@@ -59,13 +63,12 @@ export class AccountsService {
    * Return the balance of an account
    * @param acc 
    */
-  getBalance(acc: string): string {
-    this.ethersProvider.getBalance(acc).then
-      (balance => {
-        return ethers.utils.formatEther(balance)
-      });
-    return null;
+  async getBalance(acc: string): Promise<string> {
+    let a = await this.ethersProvider.getBalance(acc);
+    return ethers.utils.formatEther(a);
   }
+
+  
 
   getContractInfo(c: Contract): ContractInfo {
 
@@ -94,7 +97,7 @@ export class AccountsService {
    * Create a Contract Factory based on the solidy contract JSON object.
    * @param cSol JSON object
    */
-  getContractFactory(cSol , payload? : any): TokenFactory {
+  getContractFactory(cSol, payload?: any): TokenFactory {
     let fac = new ethers.ContractFactory(cSol.abi, cSol.bytecode, this.wallet);
     return {
       contractFactory: fac,
@@ -137,10 +140,7 @@ export class AccountsService {
    * Deploy a token Core contract from the factory
    * @param tokenFactory 
    */
-  async tokenProxyeDeploy(tokenFactory: TokenFactory): Promise<Contract> {
-    //let argsAddr: string[] = new Array();
-    //argsAddr.push(tokenFactory.payload.addr);
-    
+  async tokenProxyDeploy(tokenFactory: TokenFactory): Promise<Contract> {
     try {
       return await tokenFactory.contractFactory.deploy(tokenFactory.payload.addr);
     }
@@ -149,38 +149,104 @@ export class AccountsService {
       return null;
     }
   }
-z
+
+
+  async mintTokens(addrCore : string, addrProxy : string, supply : string){
+    let core = this.connectCore(addrCore)
+    await core.mint(addrProxy, this.acc, supply)
+  }
+
   /**
    * Update token 
    * @param payload 
    */
-  async updateTokenCore(payload: TokenDefinition, c: any): Promise<Boolean> {
+  async updateTokenCore(payload: TokenDefinition, c: any): Promise<any> {
     try {
-      console.log("payload.coreAddr: "+payload.coreAddr+",  c.abi"+c.abi);
-      let coreContract = new ethers.Contract(payload.coreAddr, c.abi, this.ethersProvider);
-      let contractWithSigner = coreContract.connect(this.wallet);
+
+      //let coreContract = new ethers.Contract(payload.coreAddr, c.abi, this.ethersProvider);
+      //let contractWithSigner = coreContract.connect(this.wallet);
       
-      let tx = await contractWithSigner.defineToken(payload.proxyAddr, 0, payload.name, payload.sym, payload.dec);
-      console.log("tx: "+JSON.stringify(tx))
-      return true;
+      let contractWithSigner = this.connectCore(payload.coreAddr)
+      return await contractWithSigner.defineToken(payload.proxyAddr, 0, payload.name, payload.sym, payload.dec);
     }
     catch (err) {
       console.log(err);
-      return false;
+      return null;
     }
   }
 
 
-  async getName(addr: string): Promise<string>{
-    let a ='0xbED67Ea4C500E2bEA4b8AEC7B57E17664222340A';
-    let proxyContract = new ethers.Contract(a, TokenProxyJSON.abi, this.ethersProvider);
-    let contractWithSigner = proxyContract.connect(this.wallet);
-    let n =  await contractWithSigner.name();
-    console.log("Name: "+n);
-    let b =  await contractWithSigner.balanceOf(this.acc);
-    console.log("Balance: "+b);
-    return n;
+  async getName(addr?: string): Promise<string> {
+    let contractWithSigner = this.connectProxy(addr)
+    return await contractWithSigner.name();
+  }
 
+  async getBalanceOf(addrProxyContract : string, addrOwner? : string ) : Promise<string>{
+    let contractWithSigner = this.connectProxy(addrProxyContract);
+    return await //ethers.utils.formatEther
+      contractWithSigner.balanceOf(addrOwner); //        addrOwner != null ? this.acc : addrOwner)
+    //);
+  }
+
+  async totalSupply(addrProxyContract : string ) : Promise<string>{
+    let contractWithSigner = this.connectProxy(addrProxyContract);
+    return await //ethers.utils.formatEther(
+      contractWithSigner.totalSupply(); //        addrOwner != null ? this.acc : addrOwner)
+    //);
+  }
+
+  async transferFrom(addrProxyContract : string, addressFrom : string, addressTo : string, value : number) : Promise<boolean>{
+    let contractWithSigner = this.connectProxy(addrProxyContract);
+    //let b : BigNumber = new BigNumber("1");
+    return await //ethers.utils.formatEther(
+      contractWithSigner.transferFrom(addressFrom, addressTo, value); //        addrOwner != null ? this.acc : addrOwner)
+    //);
+  }
+  
+  connectContract(contractType : ContractType, addr : string) : Contract{
+    let c : Contract;
+    switch (contractType) {
+      case ContractType.core:
+          if (this.coreToken != null && this.coreToken.address == addr){
+            c = this.coreToken;
+          } else {
+            c = new ethers.Contract(addr, TokenCoreJSON.abi, this.ethersProvider);
+            this.coreToken = c;           
+          }
+        break;
+        case ContractType.proxy:
+          if (this.proxyToken != null && this.proxyToken.address == addr){
+            c = this.proxyToken;
+          } else {
+            c = new ethers.Contract(addr, TokenProxyJSON.abi, this.ethersProvider);
+            this.proxyToken = c;           
+          }
+        break;
+        case ContractType.delegate:
+          if (this.delegateToken != null && this.delegateToken.address == addr){
+            c = this.delegateToken;
+          } else {
+            c = new ethers.Contract(addr, TokenDelegateJSON.abi, this.ethersProvider);
+            this.delegateToken = c;           
+          }
+        break;
+    }
+    if (c!= null){
+      return c.connect(this.wallet);
+    }
+    return null;
+  }
+
+  connectCore(addr : string){
+      return this.connectContract(ContractType.core, addr);
+  }
+
+  connectProxy(addr : string){
+    return this.connectContract(ContractType.proxy, addr);
+  }
+
+  connectDelegate(addr : string){
+    return this.connectContract(ContractType.delegate, addr);
   }
 
 

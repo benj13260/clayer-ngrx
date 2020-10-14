@@ -42,3 +42,9 @@ export class TokenDefinition{
     sym: string; 
     dec: number; 
 }
+
+export enum ContractType {
+    core = "CORE",
+    delegate = "DELEGATE",
+    proxy = "PROXY"
+}

@@ -4,17 +4,18 @@ import {TokenCreation} from '../model/clayer';
 
 export const FeatureKey = 'token-creation';
 
-export const initialState2 : TokenCreation = {
-    status: "1"
+export const initialState : TokenCreation = {
+    status: "0"
 }
 
 const tokenCreationReducer = createReducer(
-    {},
+    initialState,
     on(TokenDelegateCreated, (state, { contract }) => ({ ...state, delegate : contract })),
     on(TokenCoreCreated, (state, { contract }) => ({ ...state, core : contract })),
     on(TokenProxyCreated, (state, { contract }) => ({ ...state, proxy : contract })),
 
-    //State:
+    //Staus:
+    on(TokenDelegateCreated, (state) => ({ ...state, status : "1" })),
     on(TokenCoreCreated, (state) => ({ ...state, status : "2" })),
     on(TokenProxyCreated, (state) => ({ ...state, status : "3" })),
 

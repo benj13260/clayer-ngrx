@@ -1,7 +1,7 @@
 import * as fromDeployContract from './deploy-contract.actions';
 import {TokenDefinition} from '../model/clayer'
 
-
+/*
 describe('loadDeployContracts', () => {
   it('should return an action', () => {
     let t : TokenDefinition = new TokenDefinition();
@@ -13,4 +13,4 @@ describe('loadDeployContracts', () => {
     t.id=0;
     fromDeployContract.UpdateToken({payload: t}); //.toBe('[CLayer] Update Token');
   });
-});
+});*/
