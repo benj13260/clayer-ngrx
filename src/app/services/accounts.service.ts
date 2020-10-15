@@ -197,9 +197,9 @@ export class AccountsService {
   async transfer(addrProxyContract : string, addressTo : string, value : number) : Promise<boolean>{
     let contractWithSigner = this.connectProxy(addrProxyContract);
     let b = BigNumber.from("1");
-    return await //ethers.utils.formatEther(  
+    return await 
       contractWithSigner.transfer( addressTo, value); //        addrOwner != null ? this.acc : addrOwner)
-    //);
+    
   }
 
   // Probably need to allow address first
