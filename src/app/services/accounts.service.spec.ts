@@ -121,7 +121,7 @@ describe('AccountsService', () => {
     //Transfer
     console.log("Transfer...");
 
-    await srv.transferFrom(def.proxyAddr, srv.accounts[0], srv.accounts[1], 10);
+    await srv.transfer(def.proxyAddr, srv.accounts[1], 10);
 
     balAcc0 = await srv.getBalanceOf(proxyI.address,srv.accounts[0]);
     balAcc1 = await srv.getBalanceOf(proxyI.address,srv.accounts[1]);

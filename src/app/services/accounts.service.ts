@@ -1,13 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { ethers, Wallet, ContractFactory, Contract, utils } from 'ethers';
-import { JsonRpcProvider } from 'ethers/providers';
+import { ethers, Wallet, ContractFactory, Contract, utils, BigNumber, providers } from 'ethers';
 import { ContractInfo, TokenFactory, TokenDefinition, ContractType } from '../model/clayer';
 
 import TokenDelegateJSON from '../../assets/contracts/TokenDelegate.json'
 import TokenCoreJSON from '../../assets/contracts/TokenCore.json'
 import TokenProxyJSON from '../../assets/contracts/TokenProxy.json'
-import { BigNumber } from 'ethers/utils';
+
 
 
 @Injectable({
@@ -20,7 +19,7 @@ export class AccountsService {
   acc: string
   prv: string[] = [];
   httpClient: HttpClient;
-  ethersProvider: JsonRpcProvider;
+  ethersProvider: providers.JsonRpcProvider;
 
 
   chainURL = "http://localhost:7545"; // Ganache UI 
@@ -195,10 +194,22 @@ export class AccountsService {
     //);
   }
 
+  async transfer(addrProxyContract : string, addressTo : string, value : number) : Promise<boolean>{
+    let contractWithSigner = this.connectProxy(addrProxyContract);
+    let b = BigNumber.from("1");
+    return await //ethers.utils.formatEther(  
+      contractWithSigner.transfer( addressTo, value); //        addrOwner != null ? this.acc : addrOwner)
+    //);
+  }
+
+  // Probably need to allow address first
   async transferFrom(addrProxyContract : string, addressFrom : string, addressTo : string, value : number) : Promise<boolean>{
     let contractWithSigner = this.connectProxy(addrProxyContract);
-    //let b : BigNumber = new BigNumber("1");
+    let b = BigNumber.from("1");
+    //let g = contractWithSigner.estimateGas.transferFrom(addressFrom, addressTo, value);
+    //console.log(" Gas :"+ (await g).toString);
     return await //ethers.utils.formatEther(
+  
       contractWithSigner.transferFrom(addressFrom, addressTo, value); //        addrOwner != null ? this.acc : addrOwner)
     //);
   }

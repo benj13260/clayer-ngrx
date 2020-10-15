@@ -1,5 +1,5 @@
 import { ContractFactory } from 'ethers';
-import { BigNumber } from 'ethers/utils';
+import { BigNumber } from 'ethers';
 
 export interface TokenCreation {
     delegate?: ContractInfo,
